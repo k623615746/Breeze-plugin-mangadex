@@ -3,7 +3,7 @@
 给 [Breeze](https://github.com/deretame/Breeze) 漫画阅读器写的 MangaDex 源，走**官方公开 REST API**，不解析 HTML。
 
 - 仓库：<https://github.com/k623615746/Breeze-plugin-mangadex>
-- 版本：1.0.0
+- 版本：1.0.1
 - 站点：<https://mangadex.org>
 
 ---
@@ -25,7 +25,7 @@
 同一对话框选「从网络安装」，填入：
 
 ```
-https://github.com/k623615746/Breeze-plugin-mangadex/releases/download/1.0.0/breeze-plugin-mangadex.bundle.cjs
+https://github.com/k623615746/Breeze-plugin-mangadex/releases/download/1.0.1/breeze-plugin-mangadex.bundle.cjs
 ```
 
 ---
