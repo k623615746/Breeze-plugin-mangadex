@@ -51,6 +51,7 @@ import {
   isDisplayTranslateEnabled,
   translateChapterNames,
   translateListTitles,
+  translateTags,
   translateToChinese,
 } from "./translate-display";
 
@@ -355,15 +356,17 @@ async function getComicDetail(payload: ComicDetailPayload): Promise<ComicDetailC
     .filter(Boolean)
     .slice(0, 8);
 
-  // 可选：把标题/简介/章节名译成中文（设置里开启后生效）
+  // 可选：把标题/简介/章节名/标签译成中文（设置里开启后生效）
   let displayTitle = title;
   let displayDescription = `${mangaDescription(manga)}${note}`;
+  let displayTags = tags;
   if (await isDisplayTranslateEnabled()) {
     try {
-      const [titleZh, descZh, nameMap] = await Promise.all([
+      const [titleZh, descZh, nameMap, tagMap] = await Promise.all([
         translateToChinese(title),
         translateToChinese(mangaDescription(manga)),
         translateChapterNames(chapters.map((chapter) => chapter.name)),
+        translateTags(tags),
       ]);
       if (titleZh) {
         displayTitle = `${titleZh}（${title}）`;
@@ -376,6 +379,9 @@ async function getComicDetail(payload: ComicDetailPayload): Promise<ComicDetailC
           ...chapter,
           name: nameMap.get(chapter.name) ?? chapter.name,
         }));
+      }
+      if (tagMap.size > 0) {
+        displayTags = tags.map((tag) => tagMap.get(tag) ?? tag);
       }
     } catch {
       // 翻译失败保留原文
@@ -411,7 +417,7 @@ async function getComicDetail(payload: ComicDetailPayload): Promise<ComicDetailC
           metadata: [
             createMetadata("author", "作者", authors),
             createMetadata("works", "画家", relationshipNames(manga, "artist")),
-            createMetadata("categories", "标签", tags),
+            createMetadata("categories", "标签", displayTags),
             createMetadata("tags", "状态", [status, year].filter(Boolean)),
           ],
           extern: {},
