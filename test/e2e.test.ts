@@ -49,7 +49,7 @@ console.log(`\n[MangaDex E2E] 样本作品 ${sample.mangaId}`);
 await check("getInfo 注册信息", async () => {
   const info = await plugin.getInfo();
   assert.equal(info.name, "MangaDex");
-  assert.equal(info.version, "1.0.0");
+  assert.match(info.version, /^\d+\.\d+\.\d+$/);
   assert.ok(info.function.length >= 3, `入口数=${info.function.length}`);
 });
 

@@ -16,7 +16,7 @@ export const UPLOADS_BASE = "https://uploads.mangadex.org";
 export const USER_AGENT = "BreezePlugin-MangaDex/1.0 (Breeze manga reader plugin)";
 
 /** 占位图：必须是合法非空 URL */
-export const PLACEHOLDER_IMAGE_URL = `${UPLOADS_BASE}/covers/placeholder.png`;
+export const PLACEHOLDER_IMAGE_URL = "https://cdn.jsdelivr.net/gh/k623615746/Breeze-plugin-mangadex@main/assets/icon.png";
 
 export const PAGE_SIZE = 20;
 

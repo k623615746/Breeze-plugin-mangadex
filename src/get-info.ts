@@ -10,7 +10,7 @@ const GITHUB_REPO = "Breeze-plugin-mangadex";
 const UPDATE_URL = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`;
 
 
-const ICON_URL = `${UPLOADS_BASE}/covers/placeholder.png`;
+const ICON_URL = "https://cdn.jsdelivr.net/gh/k623615746/Breeze-plugin-mangadex@main/assets/icon.png";
 
 function buildScene(title: string, core: Record<string, unknown> = {}): ComicListScene {
   return {
@@ -67,7 +67,7 @@ export function buildPluginInfo(): InfoContract {
       "",
       "> MangaDex 是非营利社区站，内容多为粉丝翻译。请遵守其 API 使用条款（限速、不热链图片）。",
     ].join("\n"),
-    version: "1.0.0",
+    version: "1.0.1",
     home: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`,
     updateUrl: UPDATE_URL,
     function: buildFunctions(),
