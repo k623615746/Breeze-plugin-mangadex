@@ -3,7 +3,7 @@
   "uuid": "3f8a2c71-5d94-4e6b-b0a3-7c1e9d4f2a68",
   "iconUrl": "https://cdn.jsdelivr.net/gh/k623615746/Breeze-plugin-mangadex@main/assets/icon.png",
   "describe": "MangaDex 漫画源，走官方公开 REST API。\n\n- 9.5 万+ 作品，多语言章节（英语约 5.4 万、繁中约 1000、简中约 760）\n- 支持关键词搜索、关注数/最新/更新/评分四种排行\n- 可按语言、内容分级、连载状态筛选\n- 章节图片走官方 at-home 服务，无需登录\n\n**注意**：MangaDex 的中文资源偏少，日漫中文版多外链到官方平台（本站不托管）；\n英文扫译资源最丰富。可在插件设置里切换阅读语言。\n\nv1.1.0 新增「在线翻译」：设置里开启后，非中文的标题/简介/章节名会自动翻译成中文显示。\n\n> MangaDex 是非营利社区站，内容多为粉丝翻译。请遵守其 API 使用条款（限速、不热链图片）。",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "home": "https://github.com/k623615746/Breeze-plugin-mangadex",
   "updateUrl": "https://api.github.com/repos/k623615746/Breeze-plugin-mangadex/releases/latest",
   "function": [
