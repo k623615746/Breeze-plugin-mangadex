@@ -14,6 +14,10 @@ async function throttle(): Promise<void> {
   lastRequestAt = Date.now();
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
 export type QueryValue = string | number | boolean | ReadonlyArray<string | number> | null | undefined;
 
 /** 构造查询串，数组参数输出为 `key[]=v1&key[]=v2` */
@@ -61,7 +65,20 @@ export async function mdGet<T = Json>(
   }
 
   if (res.status === 429) {
-    throw new Error("MangaDex 限流（429），请稍后再试");
+    // 限流不立即失败：等 2 秒重试一次（MangaDex 限速约 5 req/s，批量翻页容易踩）
+    await sleep(2000);
+    await throttle();
+    res = await fetch(url, {
+      headers: {
+        "User-Agent": USER_AGENT,
+        Accept: "application/json",
+      },
+      redirect: "follow",
+      signal: AbortSignal.timeout(options.timeoutMs ?? 25000),
+    });
+    if (res.status === 429) {
+      throw new Error("MangaDex 限流（429），请稍后再试");
+    }
   }
   if (!res.ok) {
     const body = await res.text().catch(() => "");

@@ -1,6 +1,6 @@
 {
   "name": "breeze-plugin-mangadex",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "type": "module",
   "description": "Breeze 插件：MangaDex 漫画源（官方 REST API）",
   "files": [
