@@ -46,6 +46,25 @@ import {
   type MdChapter,
 } from "./api";
 import { buildPluginInfo } from "./get-info";
+import {
+  applyTranslateSettings,
+  isDisplayTranslateEnabled,
+  translateChapterNames,
+  translateListTitles,
+  translateToChinese,
+} from "./translate-display";
+
+/** 设置里开了「显示翻译」才生效：把列表标题批量译成中文 */
+async function maybeTranslateTitles<T extends { title: string }>(items: T[]): Promise<T[]> {
+  if (!(await isDisplayTranslateEnabled())) {
+    return items;
+  }
+  try {
+    return await translateListTitles(items);
+  } catch {
+    return items;
+  }
+}
 
 
 // ---------------------------------------------------------------------------
@@ -177,7 +196,7 @@ async function searchComic(payload: SearchComicPayload): Promise<SearchResultCon
     availableLanguage: language,
   });
 
-  const items = (res.data ?? []).map(toComicListItem);
+  const items = await maybeTranslateTitles((res.data ?? []).map(toComicListItem));
   const total = res.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const paging = { page, pages, total, hasReachedMax: page >= pages };
@@ -213,7 +232,7 @@ async function getRankingData(payload: SearchComicPayload): Promise<ComicPagedLi
     ratings: await currentRatings(),
   });
 
-  const items = (res.data ?? []).map(toComicListItem);
+  const items = await maybeTranslateTitles((res.data ?? []).map(toComicListItem));
   const total = res.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -336,6 +355,33 @@ async function getComicDetail(payload: ComicDetailPayload): Promise<ComicDetailC
     .filter(Boolean)
     .slice(0, 8);
 
+  // 可选：把标题/简介/章节名译成中文（设置里开启后生效）
+  let displayTitle = title;
+  let displayDescription = `${mangaDescription(manga)}${note}`;
+  if (await isDisplayTranslateEnabled()) {
+    try {
+      const [titleZh, descZh, nameMap] = await Promise.all([
+        translateToChinese(title),
+        translateToChinese(mangaDescription(manga)),
+        translateChapterNames(chapters.map((chapter) => chapter.name)),
+      ]);
+      if (titleZh) {
+        displayTitle = `${titleZh}（${title}）`;
+      }
+      if (descZh) {
+        displayDescription = `${descZh}${note}`;
+      }
+      if (nameMap.size > 0) {
+        chapters = chapters.map((chapter) => ({
+          ...chapter,
+          name: nameMap.get(chapter.name) ?? chapter.name,
+        }));
+      }
+    } catch {
+      // 翻译失败保留原文
+    }
+  }
+
   return {
     source: PLUGIN_ID,
     comicId,
@@ -345,7 +391,7 @@ async function getComicDetail(payload: ComicDetailPayload): Promise<ComicDetailC
       normal: {
         comicInfo: {
           id: comicId,
-          title,
+          title: displayTitle,
           titleMeta: [],
           creator: {
             id: "",
@@ -354,7 +400,7 @@ async function getComicDetail(payload: ComicDetailPayload): Promise<ComicDetailC
             onTap: null,
             extern: {},
           },
-          description: `${mangaDescription(manga)}${note}`,
+          description: displayDescription,
           cover: createImage({
             id: comicId,
             url: coverUrl(manga, 512),
@@ -552,6 +598,22 @@ async function getSettingsBundle(): Promise<SettingsBundleContract> {
             },
           ],
         },
+        {
+          id: "translate",
+          title: "在线翻译（实验性）",
+          fields: [
+            {
+              key: "translate.display",
+              kind: "switch",
+              label: "把标题/简介/章节名翻译成中文（免费翻译接口，速度较慢且有配额）",
+            },
+            {
+              key: "translate.email",
+              kind: "text",
+              label: "MyMemory 邮箱（可选，注册用户配额更高）",
+            },
+          ],
+        },
       ],
     },
     data: {
@@ -561,6 +623,8 @@ async function getSettingsBundle(): Promise<SettingsBundleContract> {
         [KEY_LANGUAGE]: language,
         [KEY_DATA_SAVER]: dataSaver ? "true" : "false",
         [KEY_ADULT]: adult ? "true" : "false",
+        "translate.display": (await isDisplayTranslateEnabled()) ? "true" : "false",
+        "translate.email": "",
       },
     },
   };
@@ -572,6 +636,8 @@ async function onSettingChanged(payload?: Record<string, unknown>) {
   const value = typeof raw === "boolean" ? (raw ? "true" : "false") : pickString(raw);
   if (key) {
     await writeSetting(key, value);
+    // 同步翻译模块的内存态，避免再读一次配置
+    applyTranslateSettings({ [key]: value });
   }
   return { source: PLUGIN_ID, data: { ok: true } };
 }
