@@ -1,0 +1,16 @@
+{
+  "name": "breeze-plugin-mangadex",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Breeze 插件：MangaDex 漫画源（官方 REST API）",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && node --import tsx build/generate-version.ts && node --import tsx build/generate-manifest.ts && cross-env NODE_OPTIONS=\"--import tsx\" rspack build && node --import tsx build/generate-brotli.ts"
+  },
+  "dependencies": {
+    "breeze-plugin-kit": "^0.14.0"
+  }
+}
